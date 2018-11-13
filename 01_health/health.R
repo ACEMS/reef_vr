@@ -178,13 +178,3 @@ tour$serve(host = LOCAL_IP)
 end <- function(){
   a_kill_all_scenes()
 }
-
-
-tour$send_messages(list(
-       a_update(id = "coral_text",
-                component = "text",
-                attributes = list(value = "foo")),
-       a_update(id = "coral_text",
-                component = "visible",
-                attributes = TRUE)
-     ))
