@@ -46,20 +46,22 @@ line_ends <- list(list(x = -0.25 , y = -0.02 , z = -3.02),
                   list(x = -0.25 , y = -0.02 , z = -1.1),
                   list(x = -0.25 , y = -0.02 , z = -1.1))
 text_descriptions <-
-  list("A: 22  HC: 74  O: 4",
-       "A: 56  HC: 22  O: 22",
-       "A: 86  SC: 6   O: 8",
-       "A: 70  HC: 20  O: 10"
+  list(
+    "A: 56  HC: 22  O: 22",
+    "A: 22  HC: 74  O: 4",
+    "A: 70  HC: 20  O: 10",
+    "A: 86  HC: 0   O: 14"
        )
-insets <- c("uha2d", "ula2d", "hha2d", "hla2d")
+insets <- c("hha2d", "hla2d", "uha2d", "ula2d")
 
 ## A 360 sphere to render the reef images on
 canvas_3d <- a_entity(.tag = "sky",
                       id = "canvas3d",
-                      src = healthy_high_aes,
-                      rotation = unlist(context_rotations[[1]]),
-                      .assets = list(healthy_low_aes,
-                                     unhealthy_low_aes,
+                      src = unhealthy_low_aes,
+                      rotation = unlist(context_rotations[[4]]),
+                      .assets = list(
+                                     healthy_high_aes,
+                                     healthy_low_aes,
                                      unhealthy_high_aes))
 
 ## A 2D plane to render the comparison images on
@@ -73,7 +75,7 @@ frame <- a_entity(.tag = "plane",
 
 canvas_2d <- a_entity(.tag = "plane",
                       id = "canvas2d",
-                      src = unhealthy_aesthetic_2d,
+                      src = unhealthy_low_aesthetic_2d,
                       width = canvas_size,
                       height = canvas_size,
                       position = c(-3, 1.5, -0.5),
@@ -82,13 +84,13 @@ canvas_2d <- a_entity(.tag = "plane",
                       .children = list(frame),
                       .assets = list(healthy_aesthetic_2d,
                                      healthy_low_aesthetic_2d,
-                                     unhealthy_low_aesthetic_2d))
+                                     unhealthy_aesthetic_2d))
 
 ## A line to point to reef
 line <- a_entity(id = "line",
                  line = list(
                    start = c(-3, 0.6, -0.5),
-                   end = unlist(line_ends[[1]]),
+                   end = unlist(line_ends[[4]]),
                    color = "yellow"),
                  visible = FALSE)
 
@@ -102,14 +104,14 @@ light <- a_entity(.tag = "light",
 ## Camera with a text display
 camera <- a_entity(.tag = "camera",
                    .children = list(a_label(id = "coral_text",
-                                            text = text_descriptions[[1]],
+                                            text = text_descriptions[[4]],
                                             scale = c(0.6, 0.6, 0.6),
                                             position = c(0, 0.6, -1),
                                             color = "white",
                                             visible = FALSE)))
 
 ## Where will we serve the scene?
-LOCAL_IP <- "10.0.1.26"
+LOCAL_IP <- "192.168.43.230"
 
 ## Setup the scene
 tour <- a_scene(.children = list(light,
@@ -122,13 +124,16 @@ tour <- a_scene(.children = list(light,
                 .template = "empty")
 
 ## interactive machinery
-CONTEXT_INDEX <- 1
+CONTEXT_INDEX <- 4
 
 ## Advance to next setting
-go <- function(){
-  CONTEXT_INDEX <<- ifelse(CONTEXT_INDEX + 1 > length(reef_contexts),
-                          yes = 1,
-                          no = CONTEXT_INDEX + 1)
+go <- function(index = NA){
+
+  if(!is.na(index)) CONTEXT_INDEX <<- index + 1
+
+  CONTEXT_INDEX <<- ifelse(CONTEXT_INDEX - 1 < 1,
+                          yes = 4,
+                          no = CONTEXT_INDEX - 1)
 
   next_image <- reef_contexts[[CONTEXT_INDEX]]
   next_inset <- insets[[CONTEXT_INDEX]]
